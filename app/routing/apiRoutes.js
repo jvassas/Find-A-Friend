@@ -8,36 +8,45 @@ module.exports = function(app) {
 
     app.post("/api/friends", function(req, res) {
         
+        //holds best match, 
         var friendMatch = {
             name: "",
             photo: "",
-            friendDifference: 1000
+            friendDifference: Infinity
         };
 
-        var user = req.body;
-        var userAnswers = userData.answers;
+        //result of user's survey 
+        var userData = req.body;
+        var userScores = userData.scores;
 
-        var totalDifference = 0;
+        //calculates difference between each user
+        var totalDifference;
 
-        for (var i =0; i < friends.length; i++) {
-
-            console.log(friends[i].name);
+        //loop through matches 
+        for (var i = 0; i < friends.length; i++) {
+            var currentFriend = friends[i];
             totalDifference = 0;
 
-            for (var j = 0; j < friends[i].answers[j]; j++) {
+            console.log(currentFriend.name);
 
-                totalDifference += Math.abs(parseInt(userAnswers[j]) - parseInt(friends[i].answers[j]));
+            //loop through scores
+            for (var j = 0; j < currentFriend.scores.length; j++) {
+                var currentFriendScore = currentFriend.scores[j];
+                var currentUserScore = userScores[j];
 
-                if (totalDifference <= friendMatch.friendDifference) {
+                //calculate difference in scores
+                totalDifference += Math.abs(parseInt(currentUserScore) - parseInt(currentFriendScore));
+            }
 
-                    friendMatch.name = friends[i].name;
-                    friendMatch.photo = friends[i].photo;
-                    friendMatch.friendDifference = totalDifference;
-                }
+            if (totalDifference <= friendMatch.friendDifference) {
+
+                friendMatch.name = currentFriend.name;
+                friendMatch.photo = currentFriend.photo;
+                friendMatch.friendDifference = totalDifference;
             }
         }
-        
-        friends.push(newUser);
+
+        friends.push(userData);
 
         res.json(friendMatch);
     });
